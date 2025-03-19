@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bathroom Cleaning Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f7f7f7;
+            padding: 20px;
+            transition: background 0.3s, color 0.3s;
+            overflow: hidden;
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #2c2c2c;
+                color: white;
+            }
+            .container {
+                background: #444;
+                color: white;
+            }
+            h2, .week-display {
+                color: white;
+            }
+            li {
+                background: #666;
+            }
+            button {
+                background: #888;
+            }
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            max-width: 400px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s, color 0.3s;
+            position: relative;
+            z-index: 10;
+        }
+        h2 {
+            color: #333;
+        }
+        .week-display {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #0077cc;
+            font-weight: bold;
+        }
+        .turn {
+            font-size: 1.2em;
+            margin: 15px 0;
+            font-weight: bold;
+            color: #0077cc;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #eef;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        .done {
+            text-decoration: line-through;
+            color: gray;
+        }
+        .date {
+            font-size: 0.8em;
+            color: #555;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p class="week-display" id="week"></p>
+        <h2>Bathroom Cleaning Tracker</h2>
+        <p>It's <span class="turn">Martín</span>'s turn to clean!</p>
+        <ul id="checklist">
+            <li>🧼 Clean the sink <span class="date"></span></li>
+            <li>🚽 Scrub the toilet <span class="date"></span></li>
+            <li>🧻 Check toilet paper (≥3 rolls) <span class="date"></span></li>
+            <li>🗑️ Take out the trash <span class="date"></span></li>
+            <li>🪞 Clean the mirror <span class="date"></span></li>
+            <li id="mop-task" style="display: none;">🧹 Mop the floor <span class="date"></span></li>
+        </ul>
+    </div>
+    <script>
+        function getCurrentWeek() {
+            const now = new Date();
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            const diff = now - startOfYear;
+            const oneWeek = 1000 * 60 * 60 * 24 * 7;
+            return Math.ceil(diff / oneWeek);
+        }
+        
+        function updateWeek() {
+            const now = new Date();
+            const weekNumber = getCurrentWeek();
+            
+            const startDate = new Date(now);
+            startDate.setDate(now.getDate() - now.getDay() + 1);
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 6);
+            
+            const formattedStart = `${(startDate.getMonth() + 1).toString().padStart(2, '0')}/${startDate.getDate().toString().padStart(2, '0')}`;
+            const formattedEnd = `${(endDate.getMonth() + 1).toString().padStart(2, '0')}/${endDate.getDate().toString().padStart(2, '0')}`;
+            
+            document.getElementById("week").textContent = `${formattedStart} - ${formattedEnd}`;
+            
+            document.querySelector(".turn").textContent = (weekNumber % 2 === 1) ? "Martín" : "Nathan";
+            
+            if ((weekNumber - 12) % 2 === 0) {
+                document.getElementById("mop-task").style.display = "flex";
+            } else {
+                document.getElementById("mop-task").style.display = "none";
+            }
+        }
+        
+        function resetChecklist() {
+            document.querySelectorAll("#checklist li").forEach(item => {
+                item.classList.remove("done");
+                const dateSpan = item.querySelector(".date");
+                dateSpan.textContent = item.getAttribute("data-date") || "";
+                dateSpan.style.display = "inline";
+            });
+            localStorage.removeItem("checklistStatus");
+        }
+        
+        function checkForNewWeek() {
+            const lastSavedWeek = localStorage.getItem("lastWeek");
+            const currentWeek = getCurrentWeek();
+            if (lastSavedWeek !== currentWeek.toString()) {
+                resetChecklist();
+                localStorage.setItem("lastWeek", currentWeek.toString());
+            }
+        }
+        
+        updateWeek();
+        checkForNewWeek();
+    </script>
+</body>
+</html>
