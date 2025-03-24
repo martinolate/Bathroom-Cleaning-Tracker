@@ -19,7 +19,7 @@
       }
       .container {
         background: #444;
-        color: white;
+        color: black;
       }
       h2, .week-display {
         color: white;
@@ -139,7 +139,6 @@
       document.getElementById("week").textContent = `${formattedStart} - ${formattedEnd}`;
       document.querySelector(".turn").textContent = (weekNumber % 2 === 1) ? "Martín" : "Nathan";
 
-      // Show mop task on certain weeks
       if ((weekNumber - 12) % 2 === 0) {
         document.getElementById("mop-task").style.display = "flex";
       } else {
@@ -148,10 +147,7 @@
     }
 
     function loadChecklistStatus() {
-      // Retrieve saved tasks from localStorage
       const savedStatus = JSON.parse(localStorage.getItem("checklistStatus")) || {};
-      
-      // Apply saved states to each task
       document.querySelectorAll("#checklist li").forEach(item => {
         const key = item.getAttribute("data-task");
         if (savedStatus[key] && savedStatus[key].done) {
@@ -162,7 +158,6 @@
     }
 
     function saveChecklistStatus() {
-      // Build an object with each task’s status
       const statusObject = {};
       document.querySelectorAll("#checklist li").forEach(item => {
         const key = item.getAttribute("data-task");
@@ -170,7 +165,6 @@
         const dateText = item.querySelector(".date").textContent;
         statusObject[key] = { done: isDone, date: dateText };
       });
-      // Save to localStorage
       localStorage.setItem("checklistStatus", JSON.stringify(statusObject));
     }
 
@@ -179,7 +173,6 @@
         item.classList.remove("done");
         item.querySelector(".date").textContent = "";
       });
-      // Clear saved tasks in localStorage
       localStorage.removeItem("checklistStatus");
     }
 
@@ -187,7 +180,6 @@
       const lastSavedWeek = localStorage.getItem("lastWeek");
       const currentWeek = getCurrentWeek();
       if (lastSavedWeek !== currentWeek.toString()) {
-        // It's a new week, so reset the checklist
         resetChecklist();
         localStorage.setItem("lastWeek", currentWeek.toString());
       }
@@ -200,23 +192,20 @@
           const dateSpan = item.querySelector(".date");
           if (item.classList.contains("done")) {
             const now = new Date();
-            // Only month/day
             const formattedDate = `${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')}`;
             dateSpan.textContent = formattedDate;
           } else {
             dateSpan.textContent = "";
           }
-          // Update localStorage after every toggle
           saveChecklistStatus();
         });
       });
     }
 
-    // On page load:
     updateWeek();
-    checkForNewWeek();       // Resets if it's a new week
-    loadChecklistStatus();   // Load existing checklist status
-    addInteractivity();      // Set up event listeners
+    checkForNewWeek();
+    loadChecklistStatus();
+    addInteractivity();
   </script>
 </body>
 </html>
