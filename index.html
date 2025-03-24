@@ -11,7 +11,6 @@
       background-color: #f7f7f7;
       padding: 20px;
       transition: background 0.3s, color 0.3s;
-      /* Removed overflow: hidden to allow scrolling */
     }
     @media (prefers-color-scheme: dark) {
       body {
@@ -20,7 +19,7 @@
       }
       .container {
         background: #444;
-        color: black;
+        color: white;
       }
       h2, .week-display {
         color: white;
@@ -73,7 +72,6 @@
       align-items: center;
       transition: background 0.2s;
     }
-    /* Only cross out the task text, not the date */
     li.done .task-text {
       text-decoration: line-through;
       color: gray;
@@ -91,27 +89,27 @@
     <h2>Bathroom Cleaning Tracker</h2>
     <p>It's <span class="turn">Martín</span>'s turn to clean!</p>
     <ul id="checklist">
-      <li data-task="Clean the sink">
+      <li data-task="clean-sink">
         <span class="task-text">🧼 Clean the sink</span>
         <span class="date"></span>
       </li>
-      <li data-task="Scrub the toilet">
+      <li data-task="scrub-toilet">
         <span class="task-text">🚽 Scrub the toilet</span>
         <span class="date"></span>
       </li>
-      <li data-task="Check toilet paper (≥3 rolls)">
+      <li data-task="check-paper">
         <span class="task-text">🧻 Check toilet paper (≥3 rolls)</span>
         <span class="date"></span>
       </li>
-      <li data-task="Take out the trash">
+      <li data-task="take-out-trash">
         <span class="task-text">🗑️ Take out the trash</span>
         <span class="date"></span>
       </li>
-      <li data-task="Clean the mirror">
+      <li data-task="clean-mirror">
         <span class="task-text">🪞 Clean the mirror</span>
         <span class="date"></span>
       </li>
-      <li id="mop-task" data-task="Mop the floor" style="display: none;">
+      <li id="mop-task" data-task="mop-floor" style="display: none;">
         <span class="task-text">🧹 Mop the floor</span>
         <span class="date"></span>
       </li>
@@ -149,12 +147,39 @@
       }
     }
 
+    function loadChecklistStatus() {
+      // Retrieve saved tasks from localStorage
+      const savedStatus = JSON.parse(localStorage.getItem("checklistStatus")) || {};
+      
+      // Apply saved states to each task
+      document.querySelectorAll("#checklist li").forEach(item => {
+        const key = item.getAttribute("data-task");
+        if (savedStatus[key] && savedStatus[key].done) {
+          item.classList.add("done");
+          item.querySelector(".date").textContent = savedStatus[key].date || "";
+        }
+      });
+    }
+
+    function saveChecklistStatus() {
+      // Build an object with each task’s status
+      const statusObject = {};
+      document.querySelectorAll("#checklist li").forEach(item => {
+        const key = item.getAttribute("data-task");
+        const isDone = item.classList.contains("done");
+        const dateText = item.querySelector(".date").textContent;
+        statusObject[key] = { done: isDone, date: dateText };
+      });
+      // Save to localStorage
+      localStorage.setItem("checklistStatus", JSON.stringify(statusObject));
+    }
+
     function resetChecklist() {
       document.querySelectorAll("#checklist li").forEach(item => {
         item.classList.remove("done");
-        const dateSpan = item.querySelector(".date");
-        dateSpan.textContent = "";
+        item.querySelector(".date").textContent = "";
       });
+      // Clear saved tasks in localStorage
       localStorage.removeItem("checklistStatus");
     }
 
@@ -162,12 +187,12 @@
       const lastSavedWeek = localStorage.getItem("lastWeek");
       const currentWeek = getCurrentWeek();
       if (lastSavedWeek !== currentWeek.toString()) {
+        // It's a new week, so reset the checklist
         resetChecklist();
         localStorage.setItem("lastWeek", currentWeek.toString());
       }
     }
 
-    // Toggle "done" status on click and update date
     function addInteractivity() {
       document.querySelectorAll("#checklist li").forEach(item => {
         item.addEventListener("click", function() {
@@ -181,14 +206,17 @@
           } else {
             dateSpan.textContent = "";
           }
-          // Optionally update localStorage here if desired
+          // Update localStorage after every toggle
+          saveChecklistStatus();
         });
       });
     }
 
+    // On page load:
     updateWeek();
-    checkForNewWeek();
-    addInteractivity();
+    checkForNewWeek();       // Resets if it's a new week
+    loadChecklistStatus();   // Load existing checklist status
+    addInteractivity();      // Set up event listeners
   </script>
 </body>
 </html>
