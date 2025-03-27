@@ -88,7 +88,7 @@
   <div class="container">
     <p class="week-display" id="week"></p>
     <h2>Bathroom Cleaning Tracker</h2>
-    <p>It's <span class="turn">Martín</span>'s turn to clean!</p>
+    <p>It's <span class="turn">Nathan</span>'s turn to clean!</p>
     <ul id="checklist">
       <li data-task="clean-sink">
         <span class="task-text">🧼 Clean the sink</span>
@@ -138,6 +138,8 @@
       const formattedEnd = `${(endDate.getMonth() + 1).toString().padStart(2, '0')}/${endDate.getDate().toString().padStart(2, '0')}`;
 
       document.getElementById("week").textContent = `${formattedStart} - ${formattedEnd}`;
+      
+      // For odd weeks: Martín's turn; even weeks: Nathan's turn
       document.querySelector(".turn").textContent = (weekNumber % 2 === 1) ? "Martín" : "Nathan";
 
       if ((weekNumber - 12) % 2 === 0) {
