@@ -139,8 +139,9 @@
 
       document.getElementById("week").textContent = `${formattedStart} - ${formattedEnd}`;
       
-      // For odd weeks: Martín's turn; even weeks: Nathan's turn
-      document.querySelector(".turn").textContent = (weekNumber % 2 === 1) ? "Martín" : "Nathan";
+      // Shift the week number by 1 so that this week (even after shifting) shows Nathan's turn.
+      // After shifting: if (weekNumber + 1) is even, it shows Nathan; if odd, Martín.
+      document.querySelector(".turn").textContent = ((weekNumber + 1) % 2 === 0) ? "Nathan" : "Martín";
 
       if ((weekNumber - 12) % 2 === 0) {
         document.getElementById("mop-task").style.display = "flex";
